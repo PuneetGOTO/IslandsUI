@@ -251,371 +251,159 @@ end
 
 Load()
 
--- 创建独立的UI切换按钮
-local function CreateToggleUI()
-    local ToggleGui = Instance.new("ScreenGui")
-    ToggleGui.Name = "AimbotToggle"
-    ToggleGui.IgnoreGuiInset = true
-    ToggleGui.ResetOnSpawn = false
-    
-    -- 创建按钮
-    local ToggleButton = Instance.new("TextButton")
-    ToggleButton.Name = "ToggleButton"
-    ToggleButton.Size = UDim2.new(0, 80, 0, 80)  -- 更大的按钮
-    ToggleButton.Position = UDim2.new(0, 20, 0, 20)
-    ToggleButton.Text = "显示"
-    ToggleButton.Font = Enum.Font.GothamBold
-    ToggleButton.TextSize = 24  -- 更大的字体
-    ToggleButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-    ToggleButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
-    ToggleButton.BorderColor3 = Color3.fromRGB(255, 255, 255)
-    ToggleButton.BorderSizePixel = 2
-    ToggleButton.ZIndex = 9999
-    ToggleButton.Parent = ToggleGui
-    
-    -- 添加圆角
-    local UICorner = Instance.new("UICorner")
-    UICorner.CornerRadius = UDim.new(0.2, 0)
-    UICorner.Parent = ToggleButton
-    
-    -- 添加阴影效果
-    local Shadow = Instance.new("ImageLabel")
-    Shadow.Name = "Shadow"
-    Shadow.AnchorPoint = Vector2.new(0.5, 0.5)
-    Shadow.BackgroundTransparency = 1
-    Shadow.Position = UDim2.new(0.5, 0, 0.5, 0)
-    Shadow.Size = UDim2.new(1.2, 0, 1.2, 0)
-    Shadow.ZIndex = 9998
-    Shadow.Image = "rbxassetid://1316045217"
-    Shadow.ImageColor3 = Color3.fromRGB(0, 0, 0)
-    Shadow.ImageTransparency = 0.6
-    Shadow.Parent = ToggleButton
-    
-    -- 悬停效果
-    ToggleButton.MouseEnter:Connect(function()
-        ToggleButton.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
-    end)
-    
-    ToggleButton.MouseLeave:Connect(function()
-        ToggleButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
-    end)
-    
-    return ToggleGui, ToggleButton
-end
-
--- 在主代码之前创建切换按钮
-local success, ToggleGui, ToggleButton = pcall(function()
-    local gui, button = CreateToggleUI()
-    gui.Parent = game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui")
-    return gui, button
-end)
-
-if not success then
-    warn("Failed to create toggle button:", ToggleGui)
-    return
-end
-
-print("Toggle button created successfully")
-
---// Load
-
-local Players = game:GetService("Players")
-local UserInputService = game:GetService("UserInputService")
-local LocalPlayer = Players.LocalPlayer
-local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
-
--- 安全检查：确保 getgenv() 存在，如果不存在则创建
-if not getgenv then
-    function getgenv()
-        return _G  -- 使用 _G 作为后备方案
-    end
-end
-
--- 初始化 Aimbot 环境
-if not getgenv().Aimbot then
-    getgenv().Aimbot = {
-        Settings = {
-            Enabled = true,
-            TeamCheck = false,
-            AliveCheck = true,
-            WallCheck = false,
-            Sensitivity = 0,
-            ThirdPerson = false,
-            ThirdPersonSensitivity = 3,
-            TriggerKey = "MouseButton2",
-            LockPart = "Head"
-        },
-        FOVSettings = {
-            Enabled = true,
-            Visible = true,
-            Amount = 90,
-            Color = Color3.fromRGB(255, 255, 255),
-            LockedColor = Color3.fromRGB(255, 70, 70),
-            Transparency = 0.5,
-            Sides = 60,
-            Thickness = 1,
-            Filled = false
-        },
-        Functions = {
-            Restart = function() print("Restart function not implemented") end,
-            ResetSettings = function() print("Reset Settings function not implemented") end
-        }
-    }
-end
-
 -- Create ScreenGui
 local AimbotUI = Instance.new("ScreenGui")
 AimbotUI.Name = "AimbotUI"
-AimbotUI.Parent = PlayerGui
+AimbotUI.Parent = game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui")
 AimbotUI.IgnoreGuiInset = true
 AimbotUI.ResetOnSpawn = false
-AimbotUI.Enabled = false  -- 默认隐藏主界面
 
--- UI 显示/隐藏功能
-local UIVisible = false
-ToggleButton.MouseButton1Click:Connect(function()
-    UIVisible = not UIVisible
-    AimbotUI.Enabled = UIVisible
-    ToggleButton.Text = UIVisible and "隐藏" or "显示"
-end)
-
--- Create main frame
+-- Create main frame with dark theme
 local MainFrame = Instance.new("Frame")
-MainFrame.Size = UDim2.new(0, 350, 0, 600)
-MainFrame.Position = UDim2.new(0.02, 0, 0.3, 0)
-MainFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-MainFrame.BorderSizePixel = 1
-MainFrame.BorderColor3 = Color3.fromRGB(100, 100, 100)
-MainFrame.Active = true
-MainFrame.Draggable = true
+MainFrame.Size = UDim2.new(0, 400, 0, 500)
+MainFrame.Position = UDim2.new(0.5, -200, 0.5, -250)
+MainFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+MainFrame.BorderSizePixel = 0
 MainFrame.Parent = AimbotUI
 
--- Title
+-- Add corner radius
+local UICorner = Instance.new("UICorner")
+UICorner.CornerRadius = UDim.new(0, 8)
+UICorner.Parent = MainFrame
+
+-- Title bar
+local TitleBar = Instance.new("Frame")
+TitleBar.Size = UDim2.new(1, 0, 0, 40)
+TitleBar.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+TitleBar.BorderSizePixel = 0
+TitleBar.Parent = MainFrame
+
+local TitleCorner = Instance.new("UICorner")
+TitleCorner.CornerRadius = UDim.new(0, 8)
+TitleCorner.Parent = TitleBar
+
+-- Title text
 local Title = Instance.new("TextLabel")
-Title.Size = UDim2.new(1, 0, 0, 60)
-Title.Text = "Aimbot Settings"
+Title.Size = UDim2.new(1, -40, 1, 0)
+Title.Position = UDim2.new(0, 10, 0, 0)
+Title.BackgroundTransparency = 1
+Title.Text = "Aimbot Hub v1.0"
+Title.TextColor3 = Color3.fromRGB(255, 100, 100)
+Title.TextSize = 18
 Title.Font = Enum.Font.GothamBold
-Title.TextSize = 24
-Title.TextColor3 = Color3.fromRGB(255, 255, 255)
-Title.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-Title.BorderSizePixel = 0
-Title.Parent = MainFrame
+Title.TextXAlignment = Enum.TextXAlignment.Left
+Title.Parent = TitleBar
 
--- Author Credit
-local AuthorCredit = Instance.new("TextLabel")
-AuthorCredit.Size = UDim2.new(1, 0, 0, 30)
-AuthorCredit.Position = UDim2.new(0, 0, 0, 60)
-AuthorCredit.Text = "由Lorain制作"
-AuthorCredit.Font = Enum.Font.GothamSemibold
-AuthorCredit.TextSize = 16
-AuthorCredit.TextColor3 = Color3.fromRGB(200, 200, 200)
-AuthorCredit.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-AuthorCredit.BorderSizePixel = 0
-AuthorCredit.Parent = MainFrame
+-- Close button
+local CloseButton = Instance.new("TextButton")
+CloseButton.Size = UDim2.new(0, 30, 0, 30)
+CloseButton.Position = UDim2.new(1, -35, 0, 5)
+CloseButton.BackgroundTransparency = 1
+CloseButton.Text = "×"
+CloseButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+CloseButton.TextSize = 24
+CloseButton.Font = Enum.Font.GothamBold
+CloseButton.Parent = TitleBar
 
--- Function to create a toggle
-local function CreateToggle(parent, text, default, callback)
+-- Left sidebar
+local Sidebar = Instance.new("Frame")
+Sidebar.Size = UDim2.new(0, 120, 1, -40)
+Sidebar.Position = UDim2.new(0, 0, 0, 40)
+Sidebar.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+Sidebar.BorderSizePixel = 0
+Sidebar.Parent = MainFrame
+
+-- Main content area
+local ContentArea = Instance.new("Frame")
+ContentArea.Size = UDim2.new(1, -120, 1, -40)
+ContentArea.Position = UDim2.new(0, 120, 0, 40)
+ContentArea.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+ContentArea.BorderSizePixel = 0
+ContentArea.Parent = MainFrame
+
+-- Create sidebar buttons
+local function CreateSidebarButton(text, position)
+    local Button = Instance.new("TextButton")
+    Button.Size = UDim2.new(1, 0, 0, 40)
+    Button.Position = UDim2.new(0, 0, 0, position)
+    Button.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+    Button.BorderSizePixel = 0
+    Button.Text = text
+    Button.TextColor3 = Color3.fromRGB(200, 200, 200)
+    Button.TextSize = 14
+    Button.Font = Enum.Font.GothamSemibold
+    Button.Parent = Sidebar
+    
+    -- Add hover effect
+    Button.MouseEnter:Connect(function()
+        Button.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+    end)
+    
+    Button.MouseLeave:Connect(function()
+        Button.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+    end)
+    
+    return Button
+end
+
+-- Add sidebar buttons
+local MainButton = CreateSidebarButton("Main", 0)
+local SettingsButton = CreateSidebarButton("Settings", 40)
+
+-- Add content to main area
+local function CreateToggle(text, position)
     local ToggleFrame = Instance.new("Frame")
-    ToggleFrame.Size = UDim2.new(1, -20, 0, 50)
-    ToggleFrame.BackgroundTransparency = 1
-    ToggleFrame.Parent = parent
-
+    ToggleFrame.Size = UDim2.new(1, -20, 0, 40)
+    ToggleFrame.Position = UDim2.new(0, 10, 0, position)
+    ToggleFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+    ToggleFrame.BorderSizePixel = 0
+    ToggleFrame.Parent = ContentArea
+    
+    local ToggleCorner = Instance.new("UICorner")
+    ToggleCorner.CornerRadius = UDim.new(0, 6)
+    ToggleCorner.Parent = ToggleFrame
+    
     local Label = Instance.new("TextLabel")
-    Label.Size = UDim2.new(0.7, 0, 1, 0)
+    Label.Size = UDim2.new(1, -50, 1, 0)
     Label.Position = UDim2.new(0, 10, 0, 0)
-    Label.Text = text
-    Label.Font = Enum.Font.Gotham
-    Label.TextSize = 14
-    Label.TextColor3 = Color3.fromRGB(255, 255, 255)
-    Label.TextXAlignment = Enum.TextXAlignment.Left
     Label.BackgroundTransparency = 1
+    Label.Text = text
+    Label.TextColor3 = Color3.fromRGB(200, 200, 200)
+    Label.TextSize = 14
+    Label.Font = Enum.Font.GothamSemibold
+    Label.TextXAlignment = Enum.TextXAlignment.Left
     Label.Parent = ToggleFrame
-
-    local Toggle = Instance.new("TextButton")
-    Toggle.Size = UDim2.new(0.2, 0, 0.6, 0)
-    Toggle.Position = UDim2.new(0.8, -10, 0.2, 0)
-    Toggle.BackgroundColor3 = default and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(255, 0, 0)
-    Toggle.Text = default and "ON" or "OFF"
-    Toggle.TextColor3 = Color3.fromRGB(255, 255, 255)
-    Toggle.BorderSizePixel = 0
-    Toggle.Parent = ToggleFrame
-
-    local isOn = default
-    Toggle.MouseButton1Click:Connect(function()
-        isOn = not isOn
-        Toggle.BackgroundColor3 = isOn and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(255, 0, 0)
-        Toggle.Text = isOn and "ON" or "OFF"
-        callback(isOn)
-    end)
-
-    return ToggleFrame
-end
-
--- Function to create a slider
-local function CreateSlider(parent, text, min, max, default, callback)
-    local SliderFrame = Instance.new("Frame")
-    SliderFrame.Size = UDim2.new(1, -20, 0, 70)
-    SliderFrame.BackgroundTransparency = 1
-    SliderFrame.Parent = parent
-
-    local Label = Instance.new("TextLabel")
-    Label.Size = UDim2.new(1, -20, 0, 25)
-    Label.Position = UDim2.new(0, 10, 0, 0)
-    Label.Text = text
-    Label.Font = Enum.Font.Gotham
-    Label.TextSize = 14
-    Label.TextColor3 = Color3.fromRGB(255, 255, 255)
-    Label.TextXAlignment = Enum.TextXAlignment.Left
-    Label.BackgroundTransparency = 1
-    Label.Parent = SliderFrame
-
-    local ValueLabel = Instance.new("TextLabel")
-    ValueLabel.Size = UDim2.new(0.2, 0, 0, 25)
-    ValueLabel.Position = UDim2.new(0.8, -10, 0, 0)
-    ValueLabel.Text = string.format("%.2f", default)
-    ValueLabel.Font = Enum.Font.Gotham
-    ValueLabel.TextSize = 12
-    ValueLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
-    ValueLabel.BackgroundTransparency = 1
-    ValueLabel.Parent = SliderFrame
-
-    local Slider = Instance.new("Slider")
-    Slider.Size = UDim2.new(1, -20, 0, 20)
-    Slider.Position = UDim2.new(0, 10, 0, 40)
-    Slider.MinValue = min
-    Slider.MaxValue = max
-    Slider.Value = default
-    Slider.Parent = SliderFrame
-
-    Slider.Changed:Connect(function(value)
-        ValueLabel.Text = string.format("%.2f", value)
-        callback(value)
-    end)
-
-    return SliderFrame
-end
-
--- Populate the frame with settings
-local SettingsContainer = Instance.new("ScrollingFrame")
-SettingsContainer.Size = UDim2.new(1, -20, 1, -150)  -- Adjusted size
-SettingsContainer.Position = UDim2.new(0, 10, 0, 90)  -- Adjusted position
-SettingsContainer.BackgroundTransparency = 1
-SettingsContainer.ScrollBarThickness = 5
-SettingsContainer.CanvasSize = UDim2.new(0, 0, 0, 600)  -- 设置固定的画布大小
-SettingsContainer.AutomaticCanvasSize = Enum.AutomaticSize.Y  -- 自动调整画布大小
-SettingsContainer.ScrollingDirection = Enum.ScrollingDirection.Y
-SettingsContainer.Parent = MainFrame
-
--- 用于跟踪垂直位置的变量
-local currentY = 0
-local spacing = 60  -- 每个元素之间的间距
-
--- 创建一个函数来添加元素并自动调整位置
-local function AddElement(element)
-    element.Position = UDim2.new(0, 0, 0, currentY)
-    currentY = currentY + element.Size.Y.Offset + spacing
-    element.Parent = SettingsContainer
-end
-
--- Enabled Toggle
-local enabledToggle = CreateToggle(SettingsContainer, "Aimbot Enabled", getgenv().Aimbot.Settings.Enabled, function(value)
-    getgenv().Aimbot.Settings.Enabled = value
-end)
-AddElement(enabledToggle)
-
--- Team Check Toggle
-local teamCheckToggle = CreateToggle(SettingsContainer, "Team Check", getgenv().Aimbot.Settings.TeamCheck, function(value)
-    getgenv().Aimbot.Settings.TeamCheck = value
-end)
-AddElement(teamCheckToggle)
-
--- Alive Check Toggle
-local aliveCheckToggle = CreateToggle(SettingsContainer, "Alive Check", getgenv().Aimbot.Settings.AliveCheck, function(value)
-    getgenv().Aimbot.Settings.AliveCheck = value
-end)
-AddElement(aliveCheckToggle)
-
--- Wall Check Toggle
-local wallCheckToggle = CreateToggle(SettingsContainer, "Wall Check", getgenv().Aimbot.Settings.WallCheck, function(value)
-    getgenv().Aimbot.Settings.WallCheck = value
-end)
-AddElement(wallCheckToggle)
-
--- Third Person Toggle
-local thirdPersonToggle = CreateToggle(SettingsContainer, "Third Person", getgenv().Aimbot.Settings.ThirdPerson, function(value)
-    getgenv().Aimbot.Settings.ThirdPerson = value
-end)
-AddElement(thirdPersonToggle)
-
--- Sensitivity Slider
-local sensitivitySlider = CreateSlider(SettingsContainer, "Sensitivity", 0, 1, getgenv().Aimbot.Settings.Sensitivity, function(value)
-    getgenv().Aimbot.Settings.Sensitivity = value
-end)
-AddElement(sensitivitySlider)
-
--- Third Person Sensitivity Slider
-local thirdPersonSensitivitySlider = CreateSlider(SettingsContainer, "Third Person Sensitivity", 0.1, 5, getgenv().Aimbot.Settings.ThirdPersonSensitivity, function(value)
-    getgenv().Aimbot.Settings.ThirdPersonSensitivity = value
-end)
-AddElement(thirdPersonSensitivitySlider)
-
--- FOV Amount Slider
-local fovAmountSlider = CreateSlider(SettingsContainer, "FOV Amount", 0, 360, getgenv().Aimbot.FOVSettings.Amount, function(value)
-    getgenv().Aimbot.FOVSettings.Amount = value
-end)
-AddElement(fovAmountSlider)
-
--- UI Visibility Toggle
-local function SetupUIToggle()
-    local UIVisible = false
-    print("Setting up UI toggle with Right Control key...")
     
-    local function ToggleUI()
-        UIVisible = not UIVisible
-        AimbotUI.Enabled = UIVisible
-        print("UI Visibility changed to:", UIVisible)
-    end
+    local ToggleButton = Instance.new("TextButton")
+    ToggleButton.Size = UDim2.new(0, 40, 0, 20)
+    ToggleButton.Position = UDim2.new(1, -45, 0.5, -10)
+    ToggleButton.BackgroundColor3 = Color3.fromRGB(255, 100, 100)
+    ToggleButton.BorderSizePixel = 0
+    ToggleButton.Text = ""
+    ToggleButton.Parent = ToggleFrame
     
-    UserInputService.InputBegan:Connect(function(input, gameProcessed)
-        if not gameProcessed and input.KeyCode == Enum.KeyCode.RightControl then
-            print("Right Control key pressed")
-            ToggleUI()
-        end
+    local ToggleButtonCorner = Instance.new("UICorner")
+    ToggleButtonCorner.CornerRadius = UDim.new(0, 10)
+    ToggleButtonCorner.Parent = ToggleButton
+    
+    local isEnabled = false
+    ToggleButton.MouseButton1Click:Connect(function()
+        isEnabled = not isEnabled
+        ToggleButton.BackgroundColor3 = isEnabled and Color3.fromRGB(100, 255, 100) or Color3.fromRGB(255, 100, 100)
+        -- 在这里添加功能切换的代码
     end)
+    
+    return ToggleButton
 end
 
--- 在UI创建完成后调用
-pcall(function()
-    if AimbotUI and AimbotUI.Parent then
-        SetupUIToggle()
-        print("UI toggle setup completed")
-    else
-        warn("Failed to setup UI toggle - AimbotUI not found")
-    end
-end)
+-- Add toggles
+local TeamCheckToggle = CreateToggle("Team Check", 10)
+local WallCheckToggle = CreateToggle("Wall Check", 60)
+local AimAssistToggle = CreateToggle("Aim Assist", 110)
 
--- Restart Button
-local RestartButton = Instance.new("TextButton")
-RestartButton.Size = UDim2.new(1, -20, 0, 50)
-RestartButton.Position = UDim2.new(0, 10, 1, -60)
-RestartButton.Text = "Restart Aimbot"
-RestartButton.BackgroundColor3 = Color3.fromRGB(0, 200, 0)
-RestartButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-RestartButton.Parent = MainFrame
-RestartButton.MouseButton1Click:Connect(function()
-    getgenv().Aimbot.Functions:Restart()
-end)
-
--- Reset Settings Button
-local ResetButton = Instance.new("TextButton")
-ResetButton.Size = UDim2.new(1, -20, 0, 50)
-ResetButton.Position = UDim2.new(0, 10, 1, -120)
-ResetButton.Text = "Reset to Default Settings"
-ResetButton.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
-ResetButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-ResetButton.Parent = MainFrame
-ResetButton.MouseButton1Click:Connect(function()
-    getgenv().Aimbot.Functions:ResetSettings()
+-- Close button functionality
+CloseButton.MouseButton1Click:Connect(function()
+    AimbotUI.Enabled = false
 end)
 
 -- Make the frame draggable
@@ -629,8 +417,8 @@ local function update(input)
     MainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
 end
 
-MainFrame.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+TitleBar.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
         dragging = true
         dragStart = input.Position
         startPos = MainFrame.Position
@@ -643,8 +431,8 @@ MainFrame.InputBegan:Connect(function(input)
     end
 end)
 
-MainFrame.InputChanged:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+TitleBar.InputChanged:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseMovement then
         dragInput = input
     end
 end)
@@ -655,9 +443,33 @@ UserInputService.InputChanged:Connect(function(input)
     end
 end)
 
+-- 创建一个小型的显示/隐藏按钮
+local ToggleButton = Instance.new("TextButton")
+ToggleButton.Size = UDim2.new(0, 40, 0, 40)
+ToggleButton.Position = UDim2.new(0, 20, 0, 20)
+ToggleButton.BackgroundColor3 = Color3.fromRGB(255, 100, 100)
+ToggleButton.BorderSizePixel = 0
+ToggleButton.Text = "A"
+ToggleButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+ToggleButton.TextSize = 18
+ToggleButton.Font = Enum.Font.GothamBold
+ToggleButton.Parent = AimbotUI
+
+local ToggleCorner = Instance.new("UICorner")
+ToggleCorner.CornerRadius = UDim.new(0, 20)
+ToggleCorner.Parent = ToggleButton
+
+-- 默认隐藏主界面
+MainFrame.Visible = false
+
+-- 添加显示/隐藏功能
+ToggleButton.MouseButton1Click:Connect(function()
+    MainFrame.Visible = not MainFrame.Visible
+end)
+
 -- 在脚本末尾添加调试信息
 print("Aimbot UI Script Loaded")
-print("PlayerGui:", PlayerGui)
+print("PlayerGui:", game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui"))
 print("Aimbot Environment:", getgenv().Aimbot)
 
 -- 添加错误处理
