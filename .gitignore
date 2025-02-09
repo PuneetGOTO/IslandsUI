@@ -1,0 +1,13 @@
+# Roblox Studio files
+*.rbxl
+*.rbxlx
+*.rbxm
+*.rbxmx
+
+# Visual Studio Code
+.vscode/
+*.code-workspace
+
+# System Files
+.DS_Store
+Thumbs.db
