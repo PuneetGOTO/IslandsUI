@@ -50,6 +50,32 @@ local Tabs = {
     Settings = Window:AddTab({ Title = "Settings", Icon = "settings" })
 }
 
+-- Core Functions
+function TeleportV4(Position)
+    if Position then
+        local player = game.Players.LocalPlayer
+        local character = player.Character
+        if character and character:FindFirstChild("HumanoidRootPart") then
+            local humanoidRootPart = character.HumanoidRootPart
+            
+            -- Tween teleport
+            local TweenService = game:GetService("TweenService")
+            local tweenInfo = TweenInfo.new(
+                (humanoidRootPart.Position - Position).Magnitude/_G.TeleportSpeed,
+                Enum.EasingStyle.Linear
+            )
+            
+            local tween = TweenService:Create(humanoidRootPart, tweenInfo, {CFrame = CFrame.new(Position)})
+            tween:Play()
+            return tween
+        end
+    end
+end
+
+-- Initialize core variables
+_G.TeleportSpeed = 50
+_G.TeleportMethod = "Tween"
+
 -- Main Tab
 local MainSection = Tabs.Main:AddSection("Quick Actions")
 
