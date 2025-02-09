@@ -580,16 +580,17 @@ end)
 
 -- 创建一个始终显示的悬浮按钮
 local ToggleButton = Instance.new("TextButton")
-ToggleButton.Size = UDim2.new(0, 40, 0, 40)
-ToggleButton.Position = UDim2.new(0, 10, 0.5, -20)
-ToggleButton.Text = "UI"
+ToggleButton.Size = UDim2.new(0, 60, 0, 60)  -- 更大的按钮
+ToggleButton.Position = UDim2.new(0, 20, 0, 20)  -- 放在左上角
+ToggleButton.Text = "显示"  -- 改为中文
 ToggleButton.Font = Enum.Font.GothamBold
-ToggleButton.TextSize = 14
+ToggleButton.TextSize = 18  -- 更大的字体
 ToggleButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-ToggleButton.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+ToggleButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)  -- 红色背景
 ToggleButton.BorderColor3 = Color3.fromRGB(255, 255, 255)
 ToggleButton.BorderSizePixel = 2
 ToggleButton.Parent = AimbotUI
+ToggleButton.ZIndex = 9999  -- 确保在最上层
 
 -- 添加圆角效果
 local UICorner = Instance.new("UICorner")
@@ -598,11 +599,11 @@ UICorner.Parent = ToggleButton
 
 -- 添加悬停效果
 ToggleButton.MouseEnter:Connect(function()
-    ToggleButton.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+    ToggleButton.BackgroundColor3 = Color3.fromRGB(200, 0, 0)  -- 暗红色
 end)
 
 ToggleButton.MouseLeave:Connect(function()
-    ToggleButton.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+    ToggleButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)  -- 恢复红色
 end)
 
 -- UI 显示/隐藏功能
@@ -610,6 +611,7 @@ local UIVisible = true
 ToggleButton.MouseButton1Click:Connect(function()
     UIVisible = not UIVisible
     MainFrame.Visible = UIVisible
+    ToggleButton.Text = UIVisible and "隐藏" or "显示"  -- 根据状态改变文字
 end)
 
 -- 确保按钮始终可见
