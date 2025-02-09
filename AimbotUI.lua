@@ -251,6 +251,74 @@ end
 
 Load()
 
+-- 创建独立的UI切换按钮
+local function CreateToggleUI()
+    local ToggleGui = Instance.new("ScreenGui")
+    ToggleGui.Name = "AimbotToggle"
+    ToggleGui.IgnoreGuiInset = true
+    ToggleGui.ResetOnSpawn = false
+    
+    -- 创建按钮
+    local ToggleButton = Instance.new("TextButton")
+    ToggleButton.Name = "ToggleButton"
+    ToggleButton.Size = UDim2.new(0, 80, 0, 80)  -- 更大的按钮
+    ToggleButton.Position = UDim2.new(0, 20, 0, 20)
+    ToggleButton.Text = "显示"
+    ToggleButton.Font = Enum.Font.GothamBold
+    ToggleButton.TextSize = 24  -- 更大的字体
+    ToggleButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+    ToggleButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+    ToggleButton.BorderColor3 = Color3.fromRGB(255, 255, 255)
+    ToggleButton.BorderSizePixel = 2
+    ToggleButton.ZIndex = 9999
+    ToggleButton.Parent = ToggleGui
+    
+    -- 添加圆角
+    local UICorner = Instance.new("UICorner")
+    UICorner.CornerRadius = UDim.new(0.2, 0)
+    UICorner.Parent = ToggleButton
+    
+    -- 添加阴影效果
+    local Shadow = Instance.new("ImageLabel")
+    Shadow.Name = "Shadow"
+    Shadow.AnchorPoint = Vector2.new(0.5, 0.5)
+    Shadow.BackgroundTransparency = 1
+    Shadow.Position = UDim2.new(0.5, 0, 0.5, 0)
+    Shadow.Size = UDim2.new(1.2, 0, 1.2, 0)
+    Shadow.ZIndex = 9998
+    Shadow.Image = "rbxassetid://1316045217"
+    Shadow.ImageColor3 = Color3.fromRGB(0, 0, 0)
+    Shadow.ImageTransparency = 0.6
+    Shadow.Parent = ToggleButton
+    
+    -- 悬停效果
+    ToggleButton.MouseEnter:Connect(function()
+        ToggleButton.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
+    end)
+    
+    ToggleButton.MouseLeave:Connect(function()
+        ToggleButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+    end)
+    
+    return ToggleGui, ToggleButton
+end
+
+-- 在主代码之前创建切换按钮
+local success, ToggleGui, ToggleButton = pcall(function()
+    local gui, button = CreateToggleUI()
+    gui.Parent = game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui")
+    return gui, button
+end)
+
+if not success then
+    warn("Failed to create toggle button:", ToggleGui)
+    return
+end
+
+print("Toggle button created successfully")
+
+--// Load
+
 local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
@@ -301,43 +369,13 @@ AimbotUI.Name = "AimbotUI"
 AimbotUI.Parent = PlayerGui
 AimbotUI.IgnoreGuiInset = true
 AimbotUI.ResetOnSpawn = false
-
-print("Creating toggle button...")
-local ToggleButton = Instance.new("TextButton")
-ToggleButton.Name = "ToggleButton"
-ToggleButton.Size = UDim2.new(0, 60, 0, 60)
-ToggleButton.Position = UDim2.new(0, 20, 0, 20)
-ToggleButton.Text = "显示"
-ToggleButton.Font = Enum.Font.GothamBold
-ToggleButton.TextSize = 18
-ToggleButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-ToggleButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
-ToggleButton.BorderColor3 = Color3.fromRGB(255, 255, 255)
-ToggleButton.BorderSizePixel = 2
-ToggleButton.ZIndex = 9999
-ToggleButton.Parent = AimbotUI
-
-print("Toggle button created, parent:", ToggleButton.Parent)
-
--- 添加圆角效果
-local UICorner = Instance.new("UICorner")
-UICorner.CornerRadius = UDim.new(0.2, 0)
-UICorner.Parent = ToggleButton
-
--- 添加悬停效果
-ToggleButton.MouseEnter:Connect(function()
-    ToggleButton.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
-end)
-
-ToggleButton.MouseLeave:Connect(function()
-    ToggleButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
-end)
+AimbotUI.Enabled = false  -- 默认隐藏主界面
 
 -- UI 显示/隐藏功能
-local UIVisible = true
+local UIVisible = false
 ToggleButton.MouseButton1Click:Connect(function()
     UIVisible = not UIVisible
-    MainFrame.Visible = UIVisible
+    AimbotUI.Enabled = UIVisible
     ToggleButton.Text = UIVisible and "隐藏" or "显示"
 end)
 
@@ -529,7 +567,7 @@ AddElement(fovAmountSlider)
 
 -- UI Visibility Toggle
 local function SetupUIToggle()
-    local UIVisible = true
+    local UIVisible = false
     print("Setting up UI toggle with Right Control key...")
     
     local function ToggleUI()
