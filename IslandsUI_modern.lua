@@ -76,6 +76,59 @@ end
 _G.TeleportSpeed = 50
 _G.TeleportMethod = "Tween"
 
+-- Auto Farm Functions
+function GetNearestCrop()
+    local player = game.Players.LocalPlayer
+    local character = player.Character
+    if not character or not character:FindFirstChild("HumanoidRootPart") then return end
+    
+    local nearestCrop = nil
+    local minDistance = math.huge
+    
+    for _, v in pairs(workspace:GetChildren()) do
+        if v:FindFirstChild("Crop") then
+            local distance = (character.HumanoidRootPart.Position - v.PrimaryPart.Position).Magnitude
+            if distance < minDistance and distance <= MaxCropDis then
+                minDistance = distance
+                nearestCrop = v
+            end
+        end
+    end
+    
+    return nearestCrop
+end
+
+-- Auto Farm Loop
+local AutoFarmConnection
+function StartAutoFarm()
+    if AutoFarmConnection then return end
+    
+    AutoFarmConnection = game:GetService("RunService").Heartbeat:Connect(function()
+        if not _G.AutoFarm then 
+            AutoFarmConnection:Disconnect()
+            AutoFarmConnection = nil
+            return 
+        end
+        
+        local crop = GetNearestCrop()
+        if crop then
+            local player = game.Players.LocalPlayer
+            local character = player.Character
+            if character and character:FindFirstChild("HumanoidRootPart") then
+                -- Teleport to crop
+                character.HumanoidRootPart.CFrame = crop.PrimaryPart.CFrame * CFrame.new(0, 3, 0)
+                
+                -- Break crop
+                local args = {
+                    [1] = crop,
+                    [2] = CropHash -- Use the hash from RemoteData
+                }
+                game:GetService("ReplicatedStorage").rbxts_include.node_modules["@rbxts"].net.out._NetManaged[RemoteData:FindFirstChild("CropHashData").Value]:FireServer(unpack(args))
+            end
+        end
+    end)
+end
+
 -- Main Tab
 local MainSection = Tabs.Main:AddSection("Quick Actions")
 
@@ -93,6 +146,9 @@ MainSection:AddToggle({
     Default = false,
     Callback = function(Value)
         _G.AutoFarm = Value
+        if Value then
+            StartAutoFarm()
+        end
     end
 })
 
@@ -243,6 +299,10 @@ SaveManager:Load()
 
 -- Set window to center
 Window:SelectTab(1)
+
+-- Initialize variables
+_G.AutoFarm = false
+MaxCropDis = 30
 
 -- Anti AFK
 local VirtualUser = game:GetService("VirtualUser")
