@@ -1,3 +1,9 @@
+print("HI")
+warn("HI")
+for i = 1, 50 do
+  print("战斗++")
+end
+
 -- Islands UI Script
 -- Author: 战斗++
 -- Version: 1.1
