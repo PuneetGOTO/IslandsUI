@@ -287,7 +287,7 @@ local Title = Instance.new("TextLabel")
 Title.Size = UDim2.new(1, -40, 1, 0)
 Title.Position = UDim2.new(0, 10, 0, 0)
 Title.BackgroundTransparency = 1
-Title.Text = "Aimbot Hub v1.0"
+Title.Text = "Aimbot Hub v1.0 By 战斗++"
 Title.TextColor3 = Color3.fromRGB(255, 100, 100)
 Title.TextSize = 18
 Title.Font = Enum.Font.GothamBold
@@ -458,6 +458,43 @@ ToggleButton.Parent = AimbotUI
 local ToggleCorner = Instance.new("UICorner")
 ToggleCorner.CornerRadius = UDim.new(0, 20)
 ToggleCorner.Parent = ToggleButton
+
+-- 让 ToggleButton 可拖动
+local toggleDragging
+local toggleDragInput
+local toggleDragStart
+local toggleStartPos
+
+local function updateTogglePosition(input)
+    local delta = input.Position - toggleDragStart
+    ToggleButton.Position = UDim2.new(toggleStartPos.X.Scale, toggleStartPos.X.Offset + delta.X, toggleStartPos.Y.Scale, toggleStartPos.Y.Offset + delta.Y)
+end
+
+ToggleButton.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton2 then  -- 右键拖动
+        toggleDragging = true
+        toggleDragStart = input.Position
+        toggleStartPos = ToggleButton.Position
+        
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                toggleDragging = false
+            end
+        end)
+    end
+end)
+
+ToggleButton.InputChanged:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseMovement then
+        toggleDragInput = input
+    end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+    if input == toggleDragInput and toggleDragging then
+        updateTogglePosition(input)
+    end
+end)
 
 -- 默认隐藏主界面
 MainFrame.Visible = false
