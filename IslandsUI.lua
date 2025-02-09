@@ -4,6 +4,110 @@ for i = 1, 50 do
   print("战斗++")
 end
 
+-- This is a pretty old script so dont joke abt the source type (its older than 90% of Roblox comminity) --
+
+repeat wait() until game:IsLoaded()
+
+local IsPremium = true 
+local DidKey = false
+local ScriptVersion = "V4"
+
+local FileName = "战斗++"
+local GameName = "Islands"
+local DeveloperVersion = true
+
+local NotificationIcon = "rbxassetid://1234567890"
+
+function SendNotification(Title, Text)
+	game:GetService("StarterGui"):SetCore("SendNotification",{
+		Title = Title,
+		Text = Text,
+		Icon = NotificationIcon
+	})
+end	
+
+SendNotification("Welcome!", "Welcome to "..FileName .. " " .. ScriptVersion.."!")
+
+local PremiumText1 = "Premium is only 2$ Lifetime. Go buy it in discord.gg/MbsxuDEzgT"
+
+if isfolder(FileName) then
+else
+	makefolder(FileName)
+end
+
+if isfolder(FileName.."/"..GameName) then
+else
+	makefolder(FileName.."/"..GameName)
+end
+
+function IsFile(Name)
+	return isfile(FileName.."/"..GameName.."/"..Name)
+end	
+
+function IsFolder(Name)
+	return isfolder(FileName.."/"..GameName.."/"..Name)
+end	
+
+function ReadFile(Name) 
+	if isfile(FileName.."/"..GameName.."/"..Name) == true then
+		return readfile(FileName.."/"..GameName.."/"..Name)
+	else
+		return readfile(FileName.."/"..GameName..Name)
+	end
+	return readfile(FileName.."/"..GameName.."/"..Name)
+end
+
+function CreateFolder(Name)
+	makefolder(FileName.."/"..GameName.."/"..Name)
+end	
+
+function CreateFile(Name, Data, CheckIfFile)
+	if CheckIfFile == true then
+		if isfile(FileName.."/"..GameName.."/"..Name) then
+		else
+			writefile(FileName.."/"..GameName.."/"..Name, Data)
+		end
+	else
+		writefile(FileName.."/"..GameName.."/"..Name, Data)
+	end
+end	
+
+task.wait(1)
+
+function GetSchematicaFiles()
+	local Path = FileName.."/"..GameName.."/".."Schematica"
+	local Files = listfiles(Path)
+	if not Files or (#Files == 0) then
+		local TemplateFile = game:HttpGet("https://pastebin.com/raw/yQUgfbZy")
+		CreateFile("/Schematica/Template", TemplateFile, false)
+		task.wait(1)
+		local Files = listfiles(Path)
+		return Files
+	else
+		return Files
+	end
+end
+
+CreateFolder("Schematica")
+CreateFolder("ello")
+
+if IsPremium == false then
+	IsPremium = true
+	DidKey = true
+else
+	DidKey = false
+end
+
+local CloneFolder
+if game:GetService("Workspace"):FindFirstChild("Clones/战斗++") then
+	CloneFolder = game:GetService("Workspace"):FindFirstChild("Clones/战斗++")
+else
+	local F = Instance.new("Model")
+	F.Parent = game:GetService("Workspace")
+	F.Name = "Clones/战斗++"
+	CloneFolder = F
+end
+
 -- Islands UI Script
 -- Author: 战斗++
 -- Version: 1.1
@@ -415,5 +519,321 @@ end
 startAutoCollect()
 startAutoMining()
 initSafetySystem()
+
+local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/xHeptc/Kavo-UI-Library/main/source.lua"))()
+local Window = Library.CreateLib("战斗++ "..ScriptVersion, "DarkTheme")
+
+local MainTab = Window:NewTab("Main")
+local MainSection = MainTab:NewSection("Main")
+local FarmingTab = Window:NewTab("Farming")
+local FarmingSection = FarmingTab:NewSection("Farming")
+local MiscTab = Window:NewTab("Misc")
+local MiscSection = MiscTab:NewSection("Misc")
+local SchematicaTab = Window:NewTab("Schematica")
+local SchematicaSection = SchematicaTab:NewSection("Schematica")
+local SettingsTab = Window:NewTab("Settings")
+local SettingsSection = SettingsTab:NewSection("Settings")
+
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local UserInputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+local TweenService = game:GetService("TweenService")
+
+local function GetRoot()
+	return LocalPlayer.Character.HumanoidRootPart
+end
+
+local function GetCharacter()
+	return LocalPlayer.Character
+end
+
+local function GetHumanoid()
+	return LocalPlayer.Character.Humanoid
+end
+
+local function GetPosition()
+	return GetRoot().Position
+end
+
+local function GetMagnitude(pos1, pos2)
+	return (pos1 - pos2).Magnitude
+end
+
+local function GetDistance(pos)
+	return GetMagnitude(GetPosition(), pos)
+end
+
+local function TweenTo(CF)
+	local Time = (GetRoot().Position - CF.Position).Magnitude/100
+	local Tween = TweenService:Create(GetRoot(), TweenInfo.new(Time, Enum.EasingStyle.Linear), {CFrame = CF})
+	Tween:Play()
+	Tween.Completed:Wait()
+end
+
+local function GetClosest(List)
+	local Target = nil
+	local Distance = math.huge
+	for i,v in pairs(List) do
+		if GetDistance(v.Position) < Distance then
+			Distance = GetDistance(v.Position)
+			Target = v
+		end
+	end
+	return Target
+end
+
+local function GetClosestWithName(List, Name)
+	local Target = nil
+	local Distance = math.huge
+	for i,v in pairs(List) do
+		if v.Name == Name and GetDistance(v.Position) < Distance then
+			Distance = GetDistance(v.Position)
+			Target = v
+		end
+	end
+	return Target
+end
+
+local function GetClosestWithNameAndDistance(List, Name, MaxDistance)
+	local Target = nil
+	local Distance = math.huge
+	for i,v in pairs(List) do
+		if v.Name == Name and GetDistance(v.Position) < Distance and GetDistance(v.Position) <= MaxDistance then
+			Distance = GetDistance(v.Position)
+			Target = v
+		end
+	end
+	return Target
+end
+
+local function GetClosestWithNameList(List, Names)
+	local Target = nil
+	local Distance = math.huge
+	for i,v in pairs(List) do
+		for _,Name in pairs(Names) do
+			if v.Name == Name and GetDistance(v.Position) < Distance then
+				Distance = GetDistance(v.Position)
+				Target = v
+			end
+		end
+	end
+	return Target
+end
+
+local function GetClosestWithNameListAndDistance(List, Names, MaxDistance)
+	local Target = nil
+	local Distance = math.huge
+	for i,v in pairs(List) do
+		for _,Name in pairs(Names) do
+			if v.Name == Name and GetDistance(v.Position) < Distance and GetDistance(v.Position) <= MaxDistance then
+				Distance = GetDistance(v.Position)
+				Target = v
+			end
+		end
+	end
+	return Target
+end
+
+local function GetAllWithName(List, Name)
+	local Targets = {}
+	for i,v in pairs(List) do
+		if v.Name == Name then
+			table.insert(Targets, v)
+		end
+	end
+	return Targets
+end
+
+local function GetAllWithNameList(List, Names)
+	local Targets = {}
+	for i,v in pairs(List) do
+		for _,Name in pairs(Names) do
+			if v.Name == Name then
+				table.insert(Targets, v)
+			end
+		end
+	end
+	return Targets
+end
+
+local function GetAllWithNameAndDistance(List, Name, MaxDistance)
+	local Targets = {}
+	for i,v in pairs(List) do
+		if v.Name == Name and GetDistance(v.Position) <= MaxDistance then
+			table.insert(Targets, v)
+		end
+	end
+	return Targets
+end
+
+local function GetAllWithNameListAndDistance(List, Names, MaxDistance)
+	local Targets = {}
+	for i,v in pairs(List) do
+		for _,Name in pairs(Names) do
+			if v.Name == Name and GetDistance(v.Position) <= MaxDistance then
+				table.insert(Targets, v)
+			end
+		end
+	end
+	return Targets
+end
+
+-- Main Tab Functions
+MainSection:NewToggle("Auto Farm", "Automatically farms resources", function(state)
+    getgenv().AutoFarm = state
+    while getgenv().AutoFarm do
+        wait()
+        local target = GetClosestWithNameList(workspace:GetChildren(), {"Tree", "Stone", "Iron", "Gold"})
+        if target then
+            local humanoid = LocalPlayer.Character:FindFirstChild("Humanoid")
+            if humanoid then
+                humanoid:MoveTo(target.Position)
+                wait(1)
+                local tool = LocalPlayer.Backpack:FindFirstChild("Axe") or LocalPlayer.Character:FindFirstChild("Axe")
+                if tool then
+                    humanoid:EquipTool(tool)
+                    wait(0.5)
+                    tool:Activate()
+                end
+            end
+        end
+    end
+end)
+
+MainSection:NewToggle("Auto Collect", "Automatically collects dropped items", function(state)
+    getgenv().AutoCollect = state
+    while getgenv().AutoCollect do
+        wait()
+        for _, v in pairs(workspace:GetChildren()) do
+            if v:IsA("BasePart") and v:FindFirstChild("TouchInterest") then
+                firetouchinterest(LocalPlayer.Character.HumanoidRootPart, v, 0)
+                wait()
+                firetouchinterest(LocalPlayer.Character.HumanoidRootPart, v, 1)
+            end
+        end
+    end
+end)
+
+-- Farming Tab Functions
+FarmingSection:NewToggle("Auto Plant", "Automatically plants seeds", function(state)
+    getgenv().AutoPlant = state
+    while getgenv().AutoPlant do
+        wait()
+        local plot = GetClosestWithName(workspace:GetChildren(), "Plot")
+        if plot then
+            local humanoid = LocalPlayer.Character:FindFirstChild("Humanoid")
+            if humanoid then
+                humanoid:MoveTo(plot.Position)
+                wait(1)
+                local tool = LocalPlayer.Backpack:FindFirstChild("Seed") or LocalPlayer.Character:FindFirstChild("Seed")
+                if tool then
+                    humanoid:EquipTool(tool)
+                    wait(0.5)
+                    tool:Activate()
+                end
+            end
+        end
+    end
+end)
+
+FarmingSection:NewToggle("Auto Harvest", "Automatically harvests crops", function(state)
+    getgenv().AutoHarvest = state
+    while getgenv().AutoHarvest do
+        wait()
+        local crop = GetClosestWithNameList(workspace:GetChildren(), {"Wheat", "Carrot", "Potato"})
+        if crop then
+            local humanoid = LocalPlayer.Character:FindFirstChild("Humanoid")
+            if humanoid then
+                humanoid:MoveTo(crop.Position)
+                wait(1)
+                local tool = LocalPlayer.Backpack:FindFirstChild("Sickle") or LocalPlayer.Character:FindFirstChild("Sickle")
+                if tool then
+                    humanoid:EquipTool(tool)
+                    wait(0.5)
+                    tool:Activate()
+                end
+            end
+        end
+    end
+end)
+
+-- Misc Tab Functions
+MiscSection:NewButton("Teleport to Base", "Teleports you to your base", function()
+    local base = workspace:FindFirstChild("Base")
+    if base then
+        LocalPlayer.Character:MoveTo(base.Position)
+    end
+end)
+
+MiscSection:NewButton("Collect All", "Collects all dropped items", function()
+    for _, v in pairs(workspace:GetChildren()) do
+        if v:IsA("BasePart") and v:FindFirstChild("TouchInterest") then
+            firetouchinterest(LocalPlayer.Character.HumanoidRootPart, v, 0)
+            wait()
+            firetouchinterest(LocalPlayer.Character.HumanoidRootPart, v, 1)
+        end
+    end
+end)
+
+-- Schematica Tab Functions
+SchematicaSection:NewDropdown("Load Schematic", "Loads a schematic", GetSchematicaFiles(), function(currentOption)
+    local schematic = ReadFile("/Schematica/"..currentOption)
+    -- Add your schematic loading logic here
+end)
+
+SchematicaSection:NewButton("Save Current Build", "Saves current build as schematic", function()
+    -- Add your schematic saving logic here
+end)
+
+-- Settings Tab Functions
+SettingsSection:NewKeybind("Toggle UI", "Toggles the UI", Enum.KeyCode.RightControl, function()
+    Library:ToggleUI()
+end)
+
+SettingsSection:NewColorPicker("UI Color", "Changes the UI color", Color3.fromRGB(0,1,1), function(color)
+    -- Add your color changing logic here
+end)
+
+-- Initialize Safety System
+local function initSafetySystem()
+    local function checkRank()
+        local rank = LocalPlayer:GetRankInGroup(123456) -- Replace with actual group ID
+        return rank >= 0 -- Allow all ranks
+    end
+    
+    if not checkRank() then
+        Library:Destroy()
+        LocalPlayer:Kick("Unauthorized")
+    end
+end
+
+-- Start Auto Mining
+local function startAutoMining()
+    spawn(function()
+        while wait() do
+            if getgenv().AutoFarm then
+                local target = GetClosestWithNameList(workspace:GetChildren(), {"Stone", "Iron", "Gold"})
+                if target then
+                    local humanoid = LocalPlayer.Character:FindFirstChild("Humanoid")
+                    if humanoid then
+                        humanoid:MoveTo(target.Position)
+                        wait(1)
+                        local tool = LocalPlayer.Backpack:FindFirstChild("Pickaxe") or LocalPlayer.Character:FindFirstChild("Pickaxe")
+                        if tool then
+                            humanoid:EquipTool(tool)
+                            wait(0.5)
+                            tool:Activate()
+                        end
+                    end
+                end
+            end
+        end
+    end)
+end
+
+-- Initialize
+initSafetySystem()
+startAutoMining()
 
 print("Islands UI Script Loaded Successfully!")

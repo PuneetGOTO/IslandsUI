@@ -4,10 +4,15 @@
 *.rbxm
 *.rbxmx
 
-# Visual Studio Code
-.vscode/
-*.code-workspace
+# Lua compiled files
+*.luac
 
-# System Files
+# System files
 .DS_Store
 Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.sublime-workspace
+*.sublime-project
