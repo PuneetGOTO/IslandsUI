@@ -1,3 +1,7 @@
+-- Islands UI Script
+-- Author: 战斗++
+-- Version: 1.1
+
 print("HI")
 warn("HI")
 for i = 1, 50 do
@@ -18,13 +22,37 @@ local DeveloperVersion = true
 
 local NotificationIcon = "rbxassetid://1234567890"
 
+-- 确保我们在正确的游戏中
+if game.PlaceId ~= 4872321990 then
+    print("错误: 这个脚本只能在Islands中使用!")
+    return
+end
+
+-- 加载UI库
+local success, Library = pcall(function()
+    return loadstring(game:HttpGet("https://raw.githubusercontent.com/xHeptc/Kavo-UI-Library/main/source.lua"))()
+end)
+
+if not success then
+    print("错误: UI库加载失败! 正在尝试备用UI库...")
+    -- 尝试备用UI库
+    success, Library = pcall(function()
+        return loadstring(game:HttpGet('https://raw.githubusercontent.com/shlexware/Orion/main/source'))()
+    end)
+    
+    if not success then
+        print("错误: 所有UI库加载失败!")
+        return
+    end
+end
+
 function SendNotification(Title, Text)
-	game:GetService("StarterGui"):SetCore("SendNotification",{
-		Title = Title,
-		Text = Text,
-		Icon = NotificationIcon
-	})
-end	
+    game:GetService("StarterGui"):SetCore("SendNotification",{
+        Title = Title,
+        Text = Text,
+        Icon = NotificationIcon
+    })
+end    
 
 SendNotification("Welcome!", "Welcome to "..FileName .. " " .. ScriptVersion.."!")
 
@@ -521,8 +549,9 @@ startAutoMining()
 initSafetySystem()
 
 local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/xHeptc/Kavo-UI-Library/main/source.lua"))()
-local Window = Library.CreateLib("战斗++ "..ScriptVersion, "DarkTheme")
+local Window = Library:CreateWindow("战斗++ "..ScriptVersion, "DarkTheme")
 
+-- 创建标签页
 local MainTab = Window:NewTab("Main")
 local MainSection = MainTab:NewSection("Main")
 local FarmingTab = Window:NewTab("Farming")
@@ -534,149 +563,150 @@ local SchematicaSection = SchematicaTab:NewSection("Schematica")
 local SettingsTab = Window:NewTab("Settings")
 local SettingsSection = SettingsTab:NewSection("Settings")
 
+-- 获取服务
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
 
+-- 工具函数
 local function GetRoot()
-	return LocalPlayer.Character.HumanoidRootPart
+    if not LocalPlayer.Character then return nil end
+    return LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
 end
 
 local function GetCharacter()
-	return LocalPlayer.Character
+    return LocalPlayer.Character
 end
 
 local function GetHumanoid()
-	return LocalPlayer.Character.Humanoid
+    if not LocalPlayer.Character then return nil end
+    return LocalPlayer.Character:FindFirstChild("Humanoid")
 end
 
 local function GetPosition()
-	return GetRoot().Position
+    local root = GetRoot()
+    if not root then return nil end
+    return root.Position
 end
 
 local function GetMagnitude(pos1, pos2)
-	return (pos1 - pos2).Magnitude
+    return (pos1 - pos2).Magnitude
 end
 
 local function GetDistance(pos)
-	return GetMagnitude(GetPosition(), pos)
-end
-
-local function TweenTo(CF)
-	local Time = (GetRoot().Position - CF.Position).Magnitude/100
-	local Tween = TweenService:Create(GetRoot(), TweenInfo.new(Time, Enum.EasingStyle.Linear), {CFrame = CF})
-	Tween:Play()
-	Tween.Completed:Wait()
+    local myPos = GetPosition()
+    if not myPos then return math.huge end
+    return GetMagnitude(myPos, pos)
 end
 
 local function GetClosest(List)
-	local Target = nil
-	local Distance = math.huge
-	for i,v in pairs(List) do
-		if GetDistance(v.Position) < Distance then
-			Distance = GetDistance(v.Position)
-			Target = v
-		end
-	end
-	return Target
+    local Target = nil
+    local Distance = math.huge
+    for i,v in pairs(List) do
+        if GetDistance(v.Position) < Distance then
+            Distance = GetDistance(v.Position)
+            Target = v
+        end
+    end
+    return Target
 end
 
 local function GetClosestWithName(List, Name)
-	local Target = nil
-	local Distance = math.huge
-	for i,v in pairs(List) do
-		if v.Name == Name and GetDistance(v.Position) < Distance then
-			Distance = GetDistance(v.Position)
-			Target = v
-		end
-	end
-	return Target
+    local Target = nil
+    local Distance = math.huge
+    for i,v in pairs(List) do
+        if v.Name == Name and GetDistance(v.Position) < Distance then
+            Distance = GetDistance(v.Position)
+            Target = v
+        end
+    end
+    return Target
 end
 
 local function GetClosestWithNameAndDistance(List, Name, MaxDistance)
-	local Target = nil
-	local Distance = math.huge
-	for i,v in pairs(List) do
-		if v.Name == Name and GetDistance(v.Position) < Distance and GetDistance(v.Position) <= MaxDistance then
-			Distance = GetDistance(v.Position)
-			Target = v
-		end
-	end
-	return Target
+    local Target = nil
+    local Distance = math.huge
+    for i,v in pairs(List) do
+        if v.Name == Name and GetDistance(v.Position) < Distance and GetDistance(v.Position) <= MaxDistance then
+            Distance = GetDistance(v.Position)
+            Target = v
+        end
+    end
+    return Target
 end
 
 local function GetClosestWithNameList(List, Names)
-	local Target = nil
-	local Distance = math.huge
-	for i,v in pairs(List) do
-		for _,Name in pairs(Names) do
-			if v.Name == Name and GetDistance(v.Position) < Distance then
-				Distance = GetDistance(v.Position)
-				Target = v
-			end
-		end
-	end
-	return Target
+    local Target = nil
+    local Distance = math.huge
+    for i,v in pairs(List) do
+        for _,Name in pairs(Names) do
+            if v.Name == Name and GetDistance(v.Position) < Distance then
+                Distance = GetDistance(v.Position)
+                Target = v
+            end
+        end
+    end
+    return Target
 end
 
 local function GetClosestWithNameListAndDistance(List, Names, MaxDistance)
-	local Target = nil
-	local Distance = math.huge
-	for i,v in pairs(List) do
-		for _,Name in pairs(Names) do
-			if v.Name == Name and GetDistance(v.Position) < Distance and GetDistance(v.Position) <= MaxDistance then
-				Distance = GetDistance(v.Position)
-				Target = v
-			end
-		end
-	end
-	return Target
+    local Target = nil
+    local Distance = math.huge
+    for i,v in pairs(List) do
+        for _,Name in pairs(Names) do
+            if v.Name == Name and GetDistance(v.Position) < Distance and GetDistance(v.Position) <= MaxDistance then
+                Distance = GetDistance(v.Position)
+                Target = v
+            end
+        end
+    end
+    return Target
 end
 
 local function GetAllWithName(List, Name)
-	local Targets = {}
-	for i,v in pairs(List) do
-		if v.Name == Name then
-			table.insert(Targets, v)
-		end
-	end
-	return Targets
+    local Targets = {}
+    for i,v in pairs(List) do
+        if v.Name == Name then
+            table.insert(Targets, v)
+        end
+    end
+    return Targets
 end
 
 local function GetAllWithNameList(List, Names)
-	local Targets = {}
-	for i,v in pairs(List) do
-		for _,Name in pairs(Names) do
-			if v.Name == Name then
-				table.insert(Targets, v)
-			end
-		end
-	end
-	return Targets
+    local Targets = {}
+    for i,v in pairs(List) do
+        for _,Name in pairs(Names) do
+            if v.Name == Name then
+                table.insert(Targets, v)
+            end
+        end
+    end
+    return Targets
 end
 
 local function GetAllWithNameAndDistance(List, Name, MaxDistance)
-	local Targets = {}
-	for i,v in pairs(List) do
-		if v.Name == Name and GetDistance(v.Position) <= MaxDistance then
-			table.insert(Targets, v)
-		end
-	end
-	return Targets
+    local Targets = {}
+    for i,v in pairs(List) do
+        if v.Name == Name and GetDistance(v.Position) <= MaxDistance then
+            table.insert(Targets, v)
+        end
+    end
+    return Targets
 end
 
 local function GetAllWithNameListAndDistance(List, Names, MaxDistance)
-	local Targets = {}
-	for i,v in pairs(List) do
-		for _,Name in pairs(Names) do
-			if v.Name == Name and GetDistance(v.Position) <= MaxDistance then
-				table.insert(Targets, v)
-			end
-		end
-	end
-	return Targets
+    local Targets = {}
+    for i,v in pairs(List) do
+        for _,Name in pairs(Names) do
+            if v.Name == Name and GetDistance(v.Position) <= MaxDistance then
+                table.insert(Targets, v)
+            end
+        end
+    end
+    return Targets
 end
 
 -- Main Tab Functions

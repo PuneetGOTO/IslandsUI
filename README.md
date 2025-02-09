@@ -15,7 +15,11 @@ A powerful UI script for Islands game with various automation features.
   
 ## Usage
 
-1. Execute the script
+1. Copy and paste this loadstring into your executor:
+```lua
+loadstring(game:HttpGet('https://raw.githubusercontent.com/PuneetGOTO/AimbotUI/main/IslandsUI.lua'))()
+```
+
 2. Use Right Control to toggle the UI
 3. Enable/disable features as needed
 
