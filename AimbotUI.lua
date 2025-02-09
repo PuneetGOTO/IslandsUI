@@ -1,3 +1,6 @@
+-- 在脚本开始处添加调试输出
+print("Starting Aimbot UI initialization...")
+
 --// Cache
 
 local select = select
@@ -486,11 +489,31 @@ end)
 AddElement(fovAmountSlider)
 
 -- UI Visibility Toggle
-local UIVisible = true
-UserInputService.InputBegan:Connect(function(input)
-    if input.KeyCode == Enum.KeyCode.RightControl then  -- 使用右Ctrl键作为开关
+local function SetupUIToggle()
+    local UIVisible = true
+    print("Setting up UI toggle with Right Control key...")
+    
+    local function ToggleUI()
         UIVisible = not UIVisible
         AimbotUI.Enabled = UIVisible
+        print("UI Visibility changed to:", UIVisible)
+    end
+    
+    UserInputService.InputBegan:Connect(function(input, gameProcessed)
+        if not gameProcessed and input.KeyCode == Enum.KeyCode.RightControl then
+            print("Right Control key pressed")
+            ToggleUI()
+        end
+    end)
+end
+
+-- 在UI创建完成后调用
+pcall(function()
+    if AimbotUI and AimbotUI.Parent then
+        SetupUIToggle()
+        print("UI toggle setup completed")
+    else
+        warn("Failed to setup UI toggle - AimbotUI not found")
     end
 end)
 
