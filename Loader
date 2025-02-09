@@ -71,6 +71,7 @@ local ServiceConnections = {}
 local Typing = false
 local Running = false
 local Animation
+local RequiredDistance = 0
 
 --// Script Settings
 Environment.Settings = {
@@ -290,16 +291,3 @@ end
 
 --// Load
 Load()
-
--- Services
-local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
-
--- Load main script
-local success, result = pcall(function()
-    return loadstring(game:HttpGet('https://raw.githubusercontent.com/PuneetGOTO/AimbotUI/main/AimbotUI.lua'))()
-end)
-
-if not success then
-    warn("Failed to load Aimbot: " .. tostring(result))
-end
