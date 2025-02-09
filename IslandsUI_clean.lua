@@ -1,3 +1,12 @@
+print("Script Source Released on 17.03.2024 (DD/MM/YYYY because Islands is Dead!")
+warn("THIS SCRIPT IS DISCONTINUED FROM NOW!")
+for i = 1, 50 do
+  print("Nekohub on Top | discord.gg/MbsxuDEzgT")
+end
+-- This is a pretty old script so dont joke abt the source type (its older than 90% of Roblox comminity) --
+
+repeat wait() until game:IsLoaded()
+
 -- Islands UI Script (Clean Version)
 local Fluent = loadstring(game:HttpGet("https://raw.githubusercontent.com/IJHGIAJGIHJASUIJGHIUHIUHSUIAOHJAHOIBNAO/Nekohub/main/Fluent-master/main.lua"))()
 local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/IJHGIAJGIHJASUIJGHIUHIUHSUIAOHJAHOIBNAO/Nekohub/main/Fluent-master/Addons/SaveManager.lua"))()
