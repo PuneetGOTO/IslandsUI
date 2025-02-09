@@ -578,6 +578,43 @@ UserInputService.InputChanged:Connect(function(input)
     end
 end)
 
+-- 创建一个始终显示的悬浮按钮
+local ToggleButton = Instance.new("TextButton")
+ToggleButton.Size = UDim2.new(0, 40, 0, 40)
+ToggleButton.Position = UDim2.new(0, 10, 0.5, -20)
+ToggleButton.Text = "UI"
+ToggleButton.Font = Enum.Font.GothamBold
+ToggleButton.TextSize = 14
+ToggleButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+ToggleButton.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+ToggleButton.BorderColor3 = Color3.fromRGB(255, 255, 255)
+ToggleButton.BorderSizePixel = 2
+ToggleButton.Parent = AimbotUI
+
+-- 添加圆角效果
+local UICorner = Instance.new("UICorner")
+UICorner.CornerRadius = UDim.new(0.2, 0)
+UICorner.Parent = ToggleButton
+
+-- 添加悬停效果
+ToggleButton.MouseEnter:Connect(function()
+    ToggleButton.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+end)
+
+ToggleButton.MouseLeave:Connect(function()
+    ToggleButton.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+end)
+
+-- UI 显示/隐藏功能
+local UIVisible = true
+ToggleButton.MouseButton1Click:Connect(function()
+    UIVisible = not UIVisible
+    MainFrame.Visible = UIVisible
+end)
+
+-- 确保按钮始终可见
+ToggleButton.ZIndex = 999
+
 -- 在脚本末尾添加调试信息
 print("Aimbot UI Script Loaded")
 print("PlayerGui:", PlayerGui)
